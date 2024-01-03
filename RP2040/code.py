@@ -15,7 +15,8 @@ JOY_Y_PIN = board.A1 # L'axe Y du joystick
 ENC_1 = board.GP1 # Pin 1 de l'encodeur rotatif
 ENC_2 = board.GP2 # Pin 2 de l'encodeur rotatif
 ENC_BTN = board.GP3 # Bouton de l'encodeur rotatif
-
+SCREEN_SCL=board.GP5 # SCL de l'écran
+SCREEN_SDA=board.GP4 # SDA de l'écran
 ######################################
 #        Instanciation du DMX        #
 ######################################
@@ -61,6 +62,30 @@ import microcontroller
 
 
 ######################################
+#    Affichage sur écran SSD1306     #
+######################################
+import busio
+import displayio
+import terminalio
+import adafruit_displayio_ssd1306
+from adafruit_display_text import label
+
+# On efface le contenu de l'écran
+displayio.release_displays()
+# On déclare un port I2C sur les pins GP0 et GP0
+i2c = busio.I2C(scl=SCREEN_SCL, sda=SCREEN_SDA)
+# On déclare le bus de notre écran à l'adresse 0x3C
+display_bus = displayio.I2CDisplay(i2c, device_address=0x3C)
+# On déclare notre ssd1306 de 128x32 pixels sur le bus précédent
+display = adafruit_displayio_ssd1306.SSD1306(display_bus, width=128, height=32)
+text_group = displayio.Group()
+text_area = label.Label(terminalio.FONT, text="Preset 1", color=0xFFFFFF, x=0, y=8, scale=2)
+text_group.append(text_area)
+text_area = label.Label(terminalio.FONT, text="En cours d'édition...", color=0xFFFFFF, x=0, y=25)
+text_group.append(text_area)
+display.show(text_group)
+
+######################################
 #       Lancement de la boucle       #
 ######################################
 import time # Pour les sleep
@@ -83,15 +108,28 @@ while True:
     position_change = current_position - last_position
     if position_change:
         preset = 1 if (preset + position_change) <= 1 else preset + position_change
-        print(f"Preset {preset}")
+        # On modifie le texte affiché sur l'écran
+        text_group = displayio.Group()
+        text_area = label.Label(terminalio.FONT, text=f"Preset {preset}", color=0xFFFFFF, x=0, y=8, scale=2)
+        text_group.append(text_area)
+        text_area = label.Label(terminalio.FONT, text="En cours d'édition...", color=0xFFFFFF, x=0, y=25)
+        text_group.append(text_area)
+        display.show(text_group)
         last_position = current_position
-    # Bouton appuyé    
+    # Bouton appuyé
     if not button.value and button_state is None:
         button_state = "pressed"
     # Bouton relâché
     if button.value and button_state == "pressed":
+        # On enregistre le preset dans la mémoire non volatile (NVM)
         microcontroller.nvm[preset*2-2:preset*2] = dmx[0:2]
-        print("Preset {preset} enregistré")
+        # On modifie le texte affiché sur l'écran
+        text_group = displayio.Group()
+        text_area = label.Label(terminalio.FONT, text=f"Preset {preset}", color=0xFFFFFF, x=0, y=8, scale=2)
+        text_group.append(text_area)
+        text_area = label.Label(terminalio.FONT, text="Enregistré", color=0xFFFFFF, x=0, y=25)
+        text_group.append(text_area)
+        display.show(text_group)
         button_state = None
 
 
@@ -99,4 +137,5 @@ while True:
     dmx.show()
     # On attends 1/10 s avant de recommencer
     time.sleep(0.1)
+
 

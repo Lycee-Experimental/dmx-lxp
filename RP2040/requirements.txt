@@ -1,1 +1,3 @@
 dmx_transmitter
+adafruit_displayio_ssd1306
+adafruit_display_text
