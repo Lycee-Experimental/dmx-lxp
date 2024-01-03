@@ -12,9 +12,9 @@ import board # Pour accéder aux GPIO
 DMX_PIN = board.GP0 # On pilote le module RS485 avec GP0
 JOY_X_PIN = board.A0 # L'axe X du Joystick
 JOY_Y_PIN = board.A1 # L'axe Y du joystick
-ENC_1 = board.D9 # Pin 1 de l'encodeur rotatif
-ENC_2 = board.D10 # Pin 2 de l'encodeur rotatif
-ENC_BTN = board.D11 # Bouton de l'encodeur rotatif
+ENC_1 = board.GP1 # Pin 1 de l'encodeur rotatif
+ENC_2 = board.GP2 # Pin 2 de l'encodeur rotatif
+ENC_BTN = board.GP3 # Bouton de l'encodeur rotatif
 
 ######################################
 #        Instanciation du DMX        #
