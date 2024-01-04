@@ -46,11 +46,14 @@ Exemple d'un slot à une valeur de 152 (`0b10011000`).
 \-/ \---/   \------/
 ```
 
+Enfin, à noter qu'il est nécessaire d'envoyer plus d'un message DMX par seconde pour maintenir les lampes allumées, au bout d'une seconde sans signal -> elle s'éteignent. Les signaux DMX doivent donc être envoyés en continu.
+
 ### Utilisation de la librairie dmx.py
 
 ```python
 import dmx
 import board
+import asyncio
 
 # Définition des pins
 SCLK_PIN = board.IO42
@@ -59,9 +62,10 @@ MOSI_PIN = board.IO43 # Le MOSI doit être connecté au MAX485, pas besoin du SC
 # Instanciation du DMX
 univ = dmx.universe(sck=SCLK_PIN, mosi=MOSI_PIN)
 
-# Envoi de message
+# Envoi de message avec assyncio pour que la librairie dmx.py envoie continuellement le signal.
 msg = b'\x06\x06\x06\x06\x06\x06\x06\x06\x06'    
-univ.send(msg)
+
+asyncio.run(univ.send(msg))
 ```
 
 ## Transmission des commandes par bluetooth
