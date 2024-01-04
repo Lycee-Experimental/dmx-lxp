@@ -11,25 +11,32 @@ radio = Radio(channel=7)
 ##############################
 
 import board
+
 # Définition des pins
 SCLK_PIN = board.IO42
-MOSI_PIN = board.IO43 # Seul le MOSI doit être connecté, pas besoin du SCLK
+MOSI_PIN = board.IO43 # Seul le MOSI doit être cablé, pas besoin du SCLK
 
 # Instanciation du DMX
 import dmx
 univ = dmx.universe(sck=SCLK_PIN, mosi=MOSI_PIN)
 
-###########################
-## Lancement de la boucle #
-###########################
+#####################################
+# Lancement d'une boucle asynchrone #
+#####################################
 
-import time
+import asyncio
 
-while True:
-    msg = radio.receive_full()
-    if msg:
-        data=msg[0]
-        # Envoi des données DMX
-        univ.send(data)
-        time.sleep(0.01)
+async def main():
+    """
+    Boucle assynchone car on doit envoyer des messages DMX en continu,
+    sans que cela n'interrompt le reste programme, lecture des capteurs...
+    """
+    while True:
+        msg = radio.receive_full()
+        if msg:
+            data = msg[0]
+            # Envoi des données DMX
+            await univ.send(data)
+        
+asyncio.run(main())
 
