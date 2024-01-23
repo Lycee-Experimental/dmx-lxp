@@ -38,4 +38,4 @@ class universe():
         """Send the DMX message every 10ms"""
         while True:
             self.spi.write(self.data)
-            await asyncio.sleep(0.005)
+            await asyncio.sleep(0.01)
